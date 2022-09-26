@@ -1,24 +1,41 @@
+import throttle from "lodash.throttle";
+
+const formRef = document.querySelector('.feedback-form');
+const STOREGE_KEY = 'feedback-form-state';
+
+import { save, load, remove} from './storage';
+
+initPage();
+
+formRef.addEventListener('submit', onFormSubmit);
+formRef.addEventListener('input', throttle(onFormInput, 500));
+
+function onFormInput (evt) {
+    const { name, value} = evt.target;
+        let saveData = load(STOREGE_KEY);
+        saveData = saveData ? saveData : {};
+    saveData[name] = value;
+    save(STOREGE_KEY, saveData)
+};
+
+function initPage () {
+    const saveData = load(STOREGE_KEY);
+    if (!saveData) {
+        return;
+      }
+      Object.entries(saveData).forEach(([name, value]) => {
+        formRef.elements[name].value = value;
+      });
+    }
 
 
-const formRefs = document.querySelector('.feedback-form');
-const textareaRefs = document.querySelector('.feedback-form textarea');
-
-formRefs.addEventListener('submit', onFormSubmit);
-textareaRefs.addEventListener('input', onTextareaInput);
-
-
-
-function onFormSubmit (evt) {};
-
-
-
-function onTextareaInput (evt) {
-    const message = evt.currentTarget.value;
-    localStorage.setItem('feedback-mesaage', message);
-    console.log(message)
+function onFormSubmit (evt) {
+    evt.preventDefault();
+    console.log(JSON.parse(localStorage.getItem(STOREGE_KEY)));
+    evt.currentTarget.reset()
+    remove(STOREGE_KEY);
+    
 };
 
 
 
-
-function populateMessageOutput () {};
